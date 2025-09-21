@@ -21,9 +21,6 @@ jobs:
       - name: Analyze code
         run: flutter analyze
 
-      - name: Format code
-        run: dart format --fix .
-
       - name: Check publish warnings
         run: dart pub publish --dry-run
 
