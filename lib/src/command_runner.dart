@@ -4,19 +4,14 @@ import 'package:cli_completion/cli_completion.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:zeno/src/commands/commands.dart';
+import 'package:zeno/src/commands/init_command.dart';
+import 'package:zeno/src/commands/run_command.dart';
 import 'package:zeno/src/version.dart';
 
 const executableName = 'zeno';
 const packageName = 'zeno';
 const description = 'A hot reload utility for Dart Applications';
 
-/// {@template zeno_command_runner}
-/// A [CommandRunner] for the CLI.
-///
-/// ```bash
-/// $ zeno --version
-/// ```
-/// {@endtemplate}
 class ZenoCommandRunner extends CompletionCommandRunner<int> {
   /// {@macro zeno_command_runner}
   ZenoCommandRunner({
@@ -25,7 +20,6 @@ class ZenoCommandRunner extends CompletionCommandRunner<int> {
   })  : _logger = logger ?? Logger(),
         _pubUpdater = pubUpdater ?? PubUpdater(),
         super(executableName, description) {
-    // Add root options and flags
     argParser
       ..addFlag(
         'version',
@@ -38,8 +32,9 @@ class ZenoCommandRunner extends CompletionCommandRunner<int> {
         help: 'Noisy logging, including all shell commands executed.',
       );
 
-    // Add sub commands
-    addCommand(SampleCommand(logger: _logger));
+    addCommand(InitCommand(logger: _logger));
+    addCommand(RunCommand(logger: _logger));
+    // addCommand(SampleCommand(logger: _logger));
     addCommand(UpdateCommand(logger: _logger, pubUpdater: _pubUpdater));
   }
 
@@ -56,10 +51,14 @@ class ZenoCommandRunner extends CompletionCommandRunner<int> {
       if (topLevelResults['verbose'] == true) {
         _logger.level = Level.verbose;
       }
+
+      if (topLevelResults.command == null &&
+          topLevelResults.arguments.isEmpty) {
+        return await runCommand(parse(['run'])) ?? ExitCode.success.code;
+      }
+
       return await runCommand(topLevelResults) ?? ExitCode.success.code;
     } on FormatException catch (e, stackTrace) {
-      // On format errors, show the commands error message, root usage and
-      // exit with an error code
       _logger
         ..err(e.message)
         ..err('$stackTrace')
@@ -67,8 +66,6 @@ class ZenoCommandRunner extends CompletionCommandRunner<int> {
         ..info(usage);
       return ExitCode.usage.code;
     } on UsageException catch (e) {
-      // On usage errors, show the commands usage message and
-      // exit with an error code
       _logger
         ..err(e.message)
         ..info('')
@@ -79,13 +76,11 @@ class ZenoCommandRunner extends CompletionCommandRunner<int> {
 
   @override
   Future<int?> runCommand(ArgResults topLevelResults) async {
-    // Fast track completion command
     if (topLevelResults.command?.name == 'completion') {
       await super.runCommand(topLevelResults);
       return ExitCode.success.code;
     }
 
-    // Verbose logs
     _logger
       ..detail('Argument information:')
       ..detail('  Top level options:');
@@ -106,7 +101,6 @@ class ZenoCommandRunner extends CompletionCommandRunner<int> {
       }
     }
 
-    // Run the command or show version
     final int? exitCode;
     if (topLevelResults['version'] == true) {
       _logger.info(packageVersion);
@@ -115,7 +109,6 @@ class ZenoCommandRunner extends CompletionCommandRunner<int> {
       exitCode = await super.runCommand(topLevelResults);
     }
 
-    // Check for updates
     if (topLevelResults.command?.name != UpdateCommand.commandName) {
       await _checkForUpdates();
     }
@@ -123,9 +116,6 @@ class ZenoCommandRunner extends CompletionCommandRunner<int> {
     return exitCode;
   }
 
-  /// Checks if the current version (set by the build runner on the
-  /// version.dart file) is the most recent one. If not, show a prompt to the
-  /// user.
   Future<void> _checkForUpdates() async {
     try {
       final latestVersion = await _pubUpdater.getLatestVersion(packageName);
@@ -135,8 +125,9 @@ class ZenoCommandRunner extends CompletionCommandRunner<int> {
           ..info('')
           ..info(
             '''
-${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}
-Run ${lightCyan.wrap('$executableName update')} to update''',
+            ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}
+            Run ${lightCyan.wrap('$executableName update')} to update
+''',
           );
       }
     } catch (_) {}
