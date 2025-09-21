@@ -1,0 +1,77 @@
+# Zeno Configuration File
+# Hot reload utility for Dart applications
+# Documentation: https://github.com/deepraj02/zeno
+
+# Project settings
+root: .
+tmp_dir: tmp
+
+# Build configuration
+build:
+  # Build command - outputs to *_new for graceful restart
+  cmd: "dart compile exe lib/main.dart -o ./tmp/main.exe"
+  
+  # Main binary path (the currently running version)
+  bin: ./tmp/main.exe
+  
+  # Application arguments
+  args: []
+  
+  # Build error log file
+  log: build-errors.log
+  
+  # File watching configuration
+  include_ext:
+    - dart
+  
+  exclude_dir:
+    - build
+    - .dart_tool
+    - tmp
+    - test
+  
+  exclude_regex:
+    - "_test\\.dart$"
+  
+  # Build lifecycle hooks
+  pre_cmd: []
+  post_cmd: []
+  
+  # Timing configuration (milliseconds)
+  delay: 1500
+  kill_delay: 1500
+  
+  # Build behavior
+  stop_on_error: false
+  exclude_unchanged: true
+  follow_symlink: false
+  
+  # File watching method
+  poll: false
+  poll_interval: 500
+
+# Logging settings
+log:
+  add_time: false
+  main_only: false
+  silent: false
+
+# Development proxy (for live reload in web apps)
+proxy:
+  enabled: false
+  proxy_port: 8090
+  app_port: 8080
+
+# Terminal display
+screen:
+  clear_on_rebuild: false
+  keep_scroll: true
+
+# Cleanup settings
+misc:
+  clean_on_exit: true
+
+# Quick Start:
+# 1. Update build.cmd with your application's entry point
+# 2. Update build.bin with your desired binary location
+# 4. Run 'zeno' to start development with hot reload
