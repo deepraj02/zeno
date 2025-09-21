@@ -11,7 +11,7 @@ dependencies:
   cli_completion: ^0.5.1
   mason_logger: ^0.3.0
   path: ^1.9.1
-  pub_updater: ^0.4.0
+  pub_updater: ">=0.4.0 <0.6.0"
   shelf: ^1.4.2
   shelf_router: ^1.1.4
   watcher: ^1.1.3
