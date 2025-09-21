@@ -1,7 +1,7 @@
 name: zeno
 description: A hot reload utility for Dart Applications
 version: 0.1.0
-
+repository: https://github.com/deepraj02/zeno
 
 environment:
   sdk: ^3.5.0

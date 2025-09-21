@@ -130,12 +130,12 @@ class ZenoProcessManager {
 
     _currentProcess!.stdout.listen(
       (data) => stdout.add(data),
-      onError: (error) => logger.warn('Stdout error: $error'),
+      onError: (Object error) => logger.warn('Stdout error: $error'),
     );
 
     _currentProcess!.stderr.listen(
       (data) => stderr.add(data),
-      onError: (error) => logger.warn('Stderr error: $error'),
+      onError: (Object error) => logger.warn('Stderr error: $error'),
     );
   }
 
